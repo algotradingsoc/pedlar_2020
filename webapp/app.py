@@ -72,6 +72,9 @@ QUANDL_OPTIONS = [
     {'label':'E-mini Dow Futures','value':'CHRIS/CME_YM1'},
     {'label':'E-mini NASDAQ 100 Futures','value':'CHRIS/CME_NQ1'},
     {'label':'S&P 500 Volatility Index VIX Futures','value':'CHRIS/CBOE_VX1'},
+    {'label':'FTSE 100 Index Futures','value':'CHRIS/LIFFE_Z1'},
+    {'label':'Cocoa Futures','value':'CHRIS/ICE_CC1'},
+    {'label':'EURO STOXX 50 Index Futures','value':'CHRIS/EUREX_FESX1'},
     ]
 
 # Dash samples 
