@@ -16,5 +16,5 @@ quandl
 # Technical analysis
 dataclasses
 pandas
-pandas_ta
+git+https://github.com/twopirllc/pandas-ta
 
