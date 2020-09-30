@@ -111,6 +111,7 @@ def _download_quandl_futures(symbol):
     if symbol.split('/')[1].split('_')[0] in ['EUREX']:
         price_df = price_df[['Open','High','Low','Settle','Volume','Prev. Day Open Interest']]
         price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
+        print('EUREX')
     if symbol.split('/')[1].split('_')[0] in ['CME']:
         price_df = price_df[['Open','High','Low','Last','Volume','Previous Day Open Interest']]
         price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
@@ -141,7 +142,7 @@ def plot_quandl_data(quandlsymbols):
                 price_col = 'Settle'
                 
             price_df = quandl.get(symbol, start_date='1995-01-01', end_date=datetime.date.today())
-            print('data downloaded')
+            print('{} data downloaded'.format(symbol))
             trace.append(go.Scatter(x=price_df.index, y=price_df[price_col], name=symbol, mode='lines',
                                 marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, ))
         # layout of line graph 
