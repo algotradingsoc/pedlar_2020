@@ -134,16 +134,9 @@ def plot_quandl_data(quandlsymbols):
     try:
         trace = []
         for symbol in quandlsymbols:
-            # CME 
-            price_col = 'Last'
-            if symbol.split('/')[1].split('_')[0] in ['CBOE']:
-                price_col = 'Close'
-            if symbol.split('/')[1].split('_')[0] in ['ICE','LIFFE']:
-                price_col = 'Settle'
-                
-            price_df = quandl.get(symbol, start_date='1995-01-01', end_date=datetime.date.today())
+            price_df =  _download_quandl_futures(symbol)
             print('{} data downloaded'.format(symbol))
-            trace.append(go.Scatter(x=price_df.index, y=price_df[price_col], name=symbol, mode='lines',
+            trace.append(go.Scatter(x=price_df.index, y=price_df['Close'], name=symbol, mode='lines',
                                 marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, ))
         # layout of line graph 
         _layout=dict(
