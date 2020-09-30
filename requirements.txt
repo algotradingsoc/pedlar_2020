@@ -1,0 +1,18 @@
+# Trading
+requests
+pandas 
+
+# Web
+flask
+dash
+dash-table
+werkzeug
+gunicorn
+
+# Database
+pymongo 
+dnspython
+
+# Data
+quandl
+

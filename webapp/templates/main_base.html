@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block body %}
+<!-- Navbar -->
+<div class="w3-top">
+ <div class="w3-bar w3-theme-d3 w3-left-align w3-large">
+  <a href="/" class="w3-bar-item w3-button w3-padding-large w3-theme-d4"><i class="material-icons">home</i>Pedlar</a>
+  <a href="https://github.com/algotradingsoc/Pedlar_dev" class="w3-bar-item w3-button w3-right w3-padding-large w3-hover-white" target="_blank" title="source"><i class="material-icons">code</i></a>
+ </div>
+</div>
+
+<!-- Page Container -->
+<div style="margin-top:80px">    
+</div> <!-- End Page Container -->
+<br>
+
+{% block columns %}
+{% endblock %}
+
+<!-- Footer -->
+<footer class="w3-container w3-theme-d3">
+  <p>version: Sep 2020</p>
+</footer>
+
+
+<script>
+// Current Time
+function update_time() {
+  el = document.getElementById('current_time');
+  el.innerHTML = new Date().toLocaleString();
+}
+setInterval(update_time, 1000);
+// Accordion
+function toggle(id) {
+  var x = document.getElementById(id);
+  if (x.className.indexOf("w3-show") == -1) {
+    x.className += " w3-show";
+    x.previousElementSibling.className += " w3-theme-d1";
+  } else { 
+    x.className = x.className.replace("w3-show", "");
+    x.previousElementSibling.className = 
+    x.previousElementSibling.className.replace(" w3-theme-d1", "");
+  }
+}
+</script>
+
+{% block scripts %}
+{% endblock %}
+
+{% endblock %}

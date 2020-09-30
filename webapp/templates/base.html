@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+      }
+    </script>
+
+    <title>Pedlar {% block title %}{% endblock %}</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  </head>
+  <style>
+    html,body,h1,h2,h3,h4,h5 { font-family: "Open Sans", sans-serif; }
+    .material-icons { vertical-align: top; }
+    @media (min-width:1800px) {
+      .w3-col.vl1{width:8.33333%}.w3-col.vl2{width:16.66666%}.w3-col.vl3{width:24.99999%}.w3-col.vl4{width:33.33333%}
+      .w3-col.vl5{width:41.66666%}.w3-col.vl6{width:49.99999%}.w3-col.vl7{width:58.33333%}.w3-col.vl8{width:66.66666%}
+      .w3-col.vl9{width:74.99999%}.w3-col.vl10{width:83.33333%}.w3-col.vl11{width:91.66666%}.w3-col.vl12{width:99.99999%}
+    }
+  </style>
+<body>
+{% block body %}
+{% endblock %}
+</body>
+</html>
