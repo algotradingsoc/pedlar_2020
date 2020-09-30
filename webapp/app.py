@@ -36,9 +36,6 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css', '/static/m
 
 # Setting up dash applications
 dash_app1 = Dash(__name__, server = server, url_base_pathname='/quandl/', external_stylesheets=external_stylesheets )
-dash_app2 = Dash(__name__, server = server, url_base_pathname='/pnl/', external_stylesheets=external_stylesheets )
-
-
 
 # mongo functions 
 def mongo2df(client,dbname,collectionname):
