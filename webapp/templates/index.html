@@ -1,15 +1,19 @@
 {% extends "main_base.html" %}
 
 {% block columns %}
-<iframe src='/leaderboard'  style='height: 400px; width: 100%' ></iframe>
+
+<iframe src='/quandl' style='height: 400px; width: 100%'    ></iframe>
 <br>
-<iframe src='/iex' style='height: 400px; width: 100%'    ></iframe>
-<br>
+
 <div id='iexref'>
     <a href="https://iextrading.com/developers">IEX Real-Time Price</a>
     Data provided for free by <a href="https://iextrading.com/developers">IEX</a>. View <a href="https://iextrading.com/apiexhibita/">IEX&rsquo;s Terms of Use</a>
 </div>
-<iframe src='/pnl' style='height: 600px; width: 100%'    ></iframe>
-<br>
+
+<div id='quandlref'>
+    <a href="https://www.quandl.com/data/CHRIS-Wiki-Continuous-Futures">Quandl Continuous Futures data </a>
+    Data provided for free by Quandl.
+</div>
+
 
 {% endblock %}

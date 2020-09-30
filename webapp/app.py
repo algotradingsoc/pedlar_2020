@@ -1,8 +1,8 @@
 """pedlarweb entry point."""
 
-import datetime 
+import datetime,requests 
 import pandas as pd 
-import requests 
+import numpy as np
 
 # Setting up multiple apps
 from dash import Dash
@@ -20,26 +20,25 @@ import plotly.graph_objs as go
 
 # datafeed functions 
 import quandl 
+quandl.ApiConfig.api_key = os.environ.get('QUANDL')
 
 # database
-# TO-DO push password to env var 
 import pymongo 
 
-
+# Technical analysis 
+import pandas_ta as ta
 
 # Setting up flask server 
 server = Flask(__name__,instance_relative_config=True)
-# Load configuration
-server.config.from_pyfile('config.py')
 
 # CSS
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css', '/static/main.css']
 
 # Setting up dash applications
-dash_app1 = Dash(__name__, server = server, url_base_pathname='/leaderboard/', external_stylesheets=external_stylesheets )
-# dash_app2 = Dash(__name__, server = server, url_base_pathname='/orderbook/', external_stylesheets=external_stylesheets )
-dash_app3 = Dash(__name__, server = server, url_base_pathname='/iex/', external_stylesheets=external_stylesheets )
-dash_app4 = Dash(__name__, server = server, url_base_pathname='/pnl/', external_stylesheets=external_stylesheets )
+dash_app1 = Dash(__name__, server = server, url_base_pathname='/quandl/', external_stylesheets=external_stylesheets )
+dash_app2 = Dash(__name__, server = server, url_base_pathname='/pnl/', external_stylesheets=external_stylesheets )
+
+
 
 # mongo functions 
 def mongo2df(client,dbname,collectionname):
@@ -55,203 +54,45 @@ def mongo2df(client,dbname,collectionname):
     return df 
 
 
+
+
 # The mainpage for 
 @server.route('/')
 def main_page():
     return render_template('index.html')
 
 
-# create new backtest record 
-
-@server.route("/user", methods=['POST'])
-def user_record():
-    password = os.environ.get('algosocdbpw', 'algosocadmin')
-    client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-    db = client['Pedlar_dev']
-    req_data = request.get_json()
-    user = req_data.get('user', 'sample')
-    agent = req_data.get('agent', 'sample')
-    # compute tradesession id 
-    tradesessionid = db['Counter'].find_one({})['counter'] + 1 
-    db['Counter'].update_one({},{"$set":{'counter':tradesessionid}})
-    return jsonify(username=user, tradesession=tradesessionid)
-
-# update leaderboard after backtest 
-@server.route("/tradesession", methods=['POST'])
-def tradesession():
-    password = os.environ.get('algosocdbpw', 'algosocadmin')
-    client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-    db = client['Pedlar_dev']
-    req_data = request.get_json()
-    user = req_data.get('user_id', 0)
-    agent = req_data.get('agent', 'sample')
-    tradesessionid = req_data.get('tradesession', 0)
-    pnl = req_data.get('pnl', -10000)
-    sharpe = req_data.get('sharpe', -100)
-    # Add to leaderboard table 
-    leaderboard = db['Leaderboard']
-    leaderboard.update_one( {'backtest_id':tradesessionid} , {"$set":{'user_id':user, 'agent':agent, 'backtest_id':tradesessionid, 'pnl':pnl, 'sharpe':sharpe}}, upsert=True)
-    return jsonify(username=user, tradesession=tradesessionid)
-
-@server.route("/portfolio/<backtestid>", methods=['POST'])
-def portfolio(backtestid):
-    password = os.environ.get('algosocdbpw', 'algosocadmin')
-    client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-    db = client['Pedlar_dev']
-    req_data = request.get_json()
-    tradesessionid = str(req_data.get('tradesession', 0))
-    # create capped collection 
-    if not str(tradesessionid) in db.list_collection_names():
-        db.create_collection(str(tradesessionid), capped=True, size=5000000, max=100)
-    portfolio = db[tradesessionid]
-    portfolio.insert_one(req_data)
-    return jsonify(tradesession=tradesessionid)
-
-
-
-
 # Plotly Applications
 
-@server.route('/leaderboard')
-def render_dashboard():
+@server.route('/quandl')
+def render_dashboard1():
     return redirect('/dash1')
 
 
-@server.route('/sample')
-def render_dashboard3():
-    return redirect('/dash3')
 
-@server.route('/pnl')
-def render_dashboard4():
-    return redirect('/dash4')
-
-# Dash samples 
-
-
-
-dash_app1.layout = html.Div(children=[
-    html.Div(id='leaderboard-header'),
-    dash_table.DataTable(
-    id='leaderboard',
-    columns=[],
-    style_table={
-        'height': '300px',
-        'overflowY': 'scroll',
-        'border': 'thin lightgrey solid'
-    },
-    ),
-    dcc.Interval(
-        id='interval-leaderboard',
-        interval=1000*60, # in milliseconds
-        n_intervals=0
-    )
-])
-
-@dash_app1.callback(Output('leaderboard-header', 'children'),
-              [Input('interval-leaderboard', 'n_intervals')])
-def update_leaderboard_header(n):
-    now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
-    return [
-        html.Span('Current Datetime: {}'.format(now))
+QUANDL_OPTIONS = [
+    {'label':'E-mini S&P 500 Futures','value':'CHRIS/CME_ES1'},
+    {'label':'E-mini Dow Futures','value':'CHRIS/CME_YM1'},
+    {'label':'E-mini NASDAQ 100 Futures','value':'CHRIS/CME_NQ1'},
+    {'label':'S&P 500 Volatility Index VIX Futures','value':'CHRIS/CBOE_VX1'},
     ]
 
-
-@dash_app1.callback(Output('leaderboard', 'columns'),
-              [Input('interval-leaderboard', 'n_intervals')])
-def update_leaderboard(n):
-    password = os.environ.get('algosocdbpw', 'algosocadmin')
-    client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-    data = mongo2df(client,'Pedlar_dev','Leaderboard')
-    names = data.columns 
-    return [{"name": i, "id": i} for i in names]
-  
-
-@dash_app1.callback(Output('leaderboard', 'data'),
-              [Input('interval-leaderboard', 'n_intervals')])
-def update_leaderboard_data(n):
-    try:
-        password = os.environ.get('algosocdbpw', 'algosocadmin')
-        client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-        data = mongo2df(client,'Pedlar_dev','Leaderboard')
-        return data.to_dict('records')
-    except:
-        return []
-
-
-
-iex_table_cols = ['time', 'exchange', 'ticker', 'bid', 'ask', 'bidsize', 'asksize']
-iex_columns = [{"name": i, "id": i} for i in iex_table_cols]
-
-dash_app3.layout = html.Div(children=[
-    html.Span('IEX Orderbook'),
+# Dash samples 
+dash_app1.layout = html.Div(children=[
+    html.Span('Quandl Futures data'),
     dcc.Dropdown(
-    id='iex-symbols',
-    options=[],
-    value=['SPY', 'QQQ'],
+    id='quandl-symbols',
+    options = QUANDL_OPTIONS ,
+    value=['CHRIS/CME_ES1', 'CHRIS/CME_YM1'],
     multi=True
     ),
-    dash_table.DataTable(
-    id='iex',
-    columns=iex_columns,
-    data=[],
-    style_table={
-        'height': '300px',
-        'overflowY': 'scroll',
-        'border': 'thin lightgrey solid'
-    },
-    ),
-    dcc.Interval(
-        id='interval-iex',
-        interval=2*1000, # in milliseconds
-        n_intervals=0
-    ),
-    dcc.Interval(
-        id='interval-symbol',
-        interval=60*60*1000, # in milliseconds
-        n_intervals=0
-    ),
-])
 
-
-@dash_app3.callback(Output('iex-symbols', 'options'),
-              [Input('interval-symbol', 'n_intervals')])
-def update_iex_symbol(n):
-    try:
-        iexbaseurl = 'https://api.iextrading.com/1.0'
-        iextopsurl = iexbaseurl + '/ref-data/symbols'
-        r = requests.get(iextopsurl)
-        data = pd.DataFrame(r.json())
-        df = pd.DataFrame()
-        df['label'] = data['name']
-        df['value'] = data['symbol']
-        return df.to_dict('records')
-    except:
-        return [{'label':'SPDR S&P 500 ETF TRUST','value':'SPY'}]
-
-@dash_app3.callback(Output('iex', 'data'),
-              [Input('interval-iex', 'n_intervals'),Input('iex-symbols','value')])
-def update_iex_data(n,tickers):
-    try:
-        query_string = ','.join(tickers)
-        df = pedlaragent.iex.get_TOPS(query_string) 
-        return df.to_dict('records')
-    except:
-        return []
-
-dash_app4.layout = html.Div(children=[
-    html.Span('Portfolio Value'),
-    dcc.Dropdown(
-    id='backtest-ids',
-    options=[],
-    value=[],
-    multi=False
-    ),
     dcc.Graph(
-        id='pnl-graph',
+        id='qunadl-price-graph',
         figure=dict(
         data=[], 
         layout=dict(
-            title='Portfolio value of most recent 10 trades',
+            title='Historical price of Selected Futures',
             showlegend=True,
             legend=dict(
                 x=0,
@@ -262,46 +103,22 @@ dash_app4.layout = html.Div(children=[
     ),
     style={'height': 500},
     ),
-    dcc.Interval(
-        id='interval-backtest',
-        interval=2*1000, # in milliseconds
-        n_intervals=0
-    ),
 ])
 
-@dash_app4.callback(Output('backtest-ids', 'options'),
-              [Input('interval-backtest', 'n_intervals')])
-def update_backtest_ids(n):
-    try:
-        password = os.environ.get('algosocdbpw', 'algosocadmin')
-        client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-        db = client['Pedlar_dev']
-        system_collections = ['Counter','Leaderboard']
-        all_collections = db.list_collection_names()
-        backtest_collections = list(set(all_collections)-set(system_collections))
-        df = pd.DataFrame()
-        df['label'] = backtest_collections
-        df['value'] = backtest_collections
-        return df.to_dict('records')
-    except:
-        return [{'label':'1','value':'1'}]
 
 
-@dash_app4.callback(Output('pnl-graph', 'figure'),
-              [Input('interval-backtest', 'n_intervals'),Input('backtest-ids', 'value')])
-def update_backtest_data(n,backtestid):
+@dash_app1.callback(Output('qunadl-price-graph', 'figure'),
+              [Input('quandl-symbols','value')])
+def plot_quandl_data(quandlsymbols):
     try:
-        password = os.environ.get('algosocdbpw', 'algosocadmin')
-        client = pymongo.MongoClient("mongodb+srv://algosocadmin:{}@icalgosoc-9xvha.mongodb.net/test?retryWrites=true&w=majority".format(password))
-        selected = ['porftoliovalue']
-        dff = mongo2df(client,'Pedlar_dev',backtestid)
         trace = []
-        for type in selected:
-            trace.append(go.Scatter(x=dff['time'], y=dff[type], name=backtestid, mode='lines',
+        for symbol in quandlsymbols:
+            price_df = quandl.get(symbol, start_date='1995-01-01', end_date='2020-12-31')
+            trace.append(go.Scatter(x=price_df['time'], y=price_df['Last'], name=symbol, mode='lines',
                                 marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, ))
         # layout of line graph 
         _layout=dict(
-            title='Portfolio value',
+            title='Historical Price for selected futures',
             showlegend=True,
             legend=dict(
                 x=0,
@@ -313,12 +130,8 @@ def update_backtest_data(n,backtestid):
     except:
         return []
 
-# Linking diffrent application
-
 app = DispatcherMiddleware(server, {
     '/dash1': dash_app1.server,
-    '/dash3': dash_app3.server,
-    '/dash4': dash_app4.server,
 })
 
 if __name__ == "__main__":

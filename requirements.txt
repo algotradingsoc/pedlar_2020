@@ -1,8 +1,5 @@
-# Trading
-requests
-pandas 
-
 # Web
+requests
 flask
 dash
 dash-table
@@ -15,4 +12,8 @@ dnspython
 
 # Data
 quandl
+
+# Technical analysis
+pandas
+pandas_ta
 
