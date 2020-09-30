@@ -103,6 +103,26 @@ dash_app1.layout = html.Div(children=[
 ])
 
 
+def _download_quandl_futures(symbol):
+    price_df = quandl.get(symbol, start_date='1995-01-01', end_date=datetime.date.today())
+    if symbol.split('/')[1].split('_')[0] in ['EUREX']:
+        price_df = price_df[['Open','High','Low','Settle','Volume','Prev. Day Open Interest']]
+        price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
+    if symbol.split('/')[1].split('_')[0] in ['CME']:
+        price_df = price_df[['Open','High','Low','Last','Volume','Previous Day Open Interest']]
+        price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
+    if symbol.split('/')[1].split('_')[0] in ['CBOE']:
+        price_df = price_df[['Open','High','Low','Close','Total Volume','Prev. Day Open Interest']]
+        price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
+    if symbol.split('/')[1].split('_')[0] in ['ICE']:
+        price_df = price_df[['Open','High','Low','Settle','Volume','Prev. Day Open Interest']]
+        price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
+    if symbol.split('/')[1].split('_')[0] in ['LIFFE']:
+        price_df = price_df[['Open','High','Low','Settle','Volume','Interest']]
+        price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
+    return price_df 
+
+
 
 @dash_app1.callback(Output('qunadl-price-graph', 'figure'),
               [Input('quandl-symbols','value')])
@@ -110,8 +130,16 @@ def plot_quandl_data(quandlsymbols):
     try:
         trace = []
         for symbol in quandlsymbols:
-            price_df = quandl.get(symbol, start_date='1995-01-01', end_date='2020-12-31')
-            trace.append(go.Scatter(x=price_df['time'], y=price_df['Last'], name=symbol, mode='lines',
+            # CME 
+            price_col = 'Last'
+            if symbol.split('/')[1].split('_')[0] in ['CBOE']:
+                price_col = 'Close'
+            if symbol.split('/')[1].split('_')[0] in ['ICE','LIFFE']:
+                price_col = 'Settle'
+                
+            price_df = quandl.get(symbol, start_date='1995-01-01', end_date=datetime.date.today())
+            print('data downloaded')
+            trace.append(go.Scatter(x=price_df.index, y=price_df[price_col], name=symbol, mode='lines',
                                 marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, ))
         # layout of line graph 
         _layout=dict(
