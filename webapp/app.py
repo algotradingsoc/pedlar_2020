@@ -28,6 +28,12 @@ import pymongo
 # Technical analysis 
 import pandas_ta as ta
 
+
+## Custom trade models 
+import trademodel
+
+
+
 # Setting up flask server 
 server = Flask(__name__,instance_relative_config=True)
 
