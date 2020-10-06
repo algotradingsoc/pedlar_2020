@@ -30,8 +30,6 @@ import pandas_ta as ta
 
 
 ## Custom trade models 
-import trademodel
-
 
 
 # Setting up flask server 
