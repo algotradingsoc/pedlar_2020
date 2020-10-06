@@ -126,7 +126,7 @@ def _download_quandl_futures(symbol):
         price_df = price_df[['Open','High','Low','Settle','Volume','Prev. Day Open Interest']]
         price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
     if symbol.split('/')[1].split('_')[0] in ['LIFFE']:
-        price_df = price_df[['Open','High','Low','Settle','Volume','Interest']]
+        price_df = price_df[['Open','High','Low','Settle','Volume','Prev. Day Open Interest']]
         price_df.columns = ['Open','High','Low','Close','Volume','Open Interest']
     return price_df 
 
