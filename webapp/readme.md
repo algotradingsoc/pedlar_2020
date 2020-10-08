@@ -1,6 +1,6 @@
 Robust trading strategies in the futures market
 
-We will build a python web application where users can compare the performance of commonly used risk factors and strategies using up-to-data data from Quandl 
+A python web application where users can compare the performance of commonly used risk factors and strategies using up-to-data data from Quandl 
 
 Data source: Quandl Wiki Continuous Futures 
 
@@ -28,7 +28,7 @@ In-sample period: Around 1997-2018
 
 Out-sample period 2018-now
 
-How to backtest: Download recent data from Quandl, run the out of
+How to backtest: Download recent data from Quandl, run the models 
 
 Web Application: A collection of plotly applications which visualise the backtest performance 
 
