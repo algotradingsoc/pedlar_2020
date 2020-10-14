@@ -12,9 +12,10 @@ Database: MongoDB
 
 ## Personel involved 
 Thomas: Design models and project management  
-Archie: Data management 
-Jeffrey: Web Develop 
-Matt: Design models 
+Archie: Data management  
+Jeffrey: Web Develop  
+Matt: Design models  
+Nilesh: Design models  
 
 
 ## Data Sources 
