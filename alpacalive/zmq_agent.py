@@ -33,7 +33,7 @@ def ondata(pricingsource, tickdata):
 if __name__=='__main__':
 
     counter = 0
-    while counter <= 20000000:
+    while True:
         message = socket.recv_multipart()
         exchange = message[0].decode()
         tick = message[1]

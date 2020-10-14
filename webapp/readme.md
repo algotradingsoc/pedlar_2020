@@ -28,6 +28,8 @@ In-sample period: Around 1997-2018
 
 Out-sample period 2018-now
 
+
+
 How to backtest: Download recent data from Quandl, run the models 
 
 Web Application: A collection of plotly applications which visualise the backtest performance 
