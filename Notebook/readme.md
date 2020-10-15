@@ -7,6 +7,6 @@ We will be using Quantopian, Quantconnect and our in-house trading simulation pl
 Quantopian: https://www.quantopian.com/tutorials/getting-started
 Quantconnect: https://www.quantconnect.com/docs/home/home
 
-Week 1: Understanding financial data
-Week 2: Build a simple algo using technical analysis 
+Lecture 1 Understanding financial data
+Lecture 2 Building algo using Technical analysis and Fundamentals data
 
