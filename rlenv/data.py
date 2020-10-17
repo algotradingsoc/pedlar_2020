@@ -20,12 +20,13 @@ a = Arctic('localhost')
 a.initialize_library('Alpaca_Equity_daily', lib_type=CHUNK_STORE)
 a.initialize_library('Alpaca_Equity_minute', lib_type=CHUNK_STORE)
 a.initialize_library('Qunadl_Futures_daily', lib_type=CHUNK_STORE)
+
 ## Download Quandl price data
 
 def download_quandl_futures(symbol, startdate='1950-01-01', enddate=datetime.date.today()):
     '''Returned Log price data from Quandl Futures with date as index.'''
     
-    quandl.ApiConfig.api_key = 'He76uGCS7L-7s3dFZdpq'
+    quandl.ApiConfig.api_key = os.environ.get('QUANDL', None)
     
     price_df = quandl.get(symbol, start_date=startdate, end_date=enddate)
     
@@ -51,6 +52,9 @@ def download_quandl_futures(symbol, startdate='1950-01-01', enddate=datetime.dat
 
 
 def download_quandl_symbols():
+    ''' 
+    Download selected futures from Quandl which are updated recently (14 days) and with history longer than 20 years
+    '''
     url = 'https://www.quandl.com/api/v3/databases/CHRIS/metadata?api_key={}'.format(quandl.ApiConfig.api_key)
     df = pd.read_csv(url,compression='zip')
     df['from_date'] = pd.to_datetime(df['from_date'])
@@ -67,7 +71,7 @@ def download_quandl_symbols():
 ## Download Alpaca price data 
 
 def download_alpaca_data(ticker, timeframe='1D', start='2007-12-31T21:30:00-04:00', end=datetime.datetime.now()):
-    '''Returned Price data from Quandl Futures with date as index.'''
+    '''Returned Price data from Alpaca with date as index.'''
     headers = {
     'APCA-API-KEY-ID' : Alapca_API_key,
     'APCA-API-SECRET-KEY': Alapca_API_secret_key,

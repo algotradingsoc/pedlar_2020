@@ -30,6 +30,14 @@ def ondata(pricingsource, tickdata):
         except json.decoder.JSONDecodeError:
             print('Not decoded')
 
+
+
+
+
+
+
+
+
 if __name__=='__main__':
 
     counter = 0
